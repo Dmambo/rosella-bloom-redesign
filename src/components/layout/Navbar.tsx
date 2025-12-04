@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingBag } from "lucide-react";
+import { Menu, X, ShoppingBag, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -16,6 +18,10 @@ export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { getTotalItems } = useCart();
+  const { favorites } = useFavorites();
+  const cartCount = getTotalItems();
+  const favoritesCount = favorites.length;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -67,7 +73,29 @@ export const Navbar = () => {
         </div>
 
         {/* CTA Buttons */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/favorites"
+            className="relative p-2 text-foreground hover:text-primary transition-colors"
+          >
+            <Heart className="w-5 h-5" />
+            {favoritesCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center justify-center">
+                {favoritesCount > 9 ? "9+" : favoritesCount}
+              </span>
+            )}
+          </Link>
+          <Link
+            to="/cart"
+            className="relative p-2 text-foreground hover:text-primary transition-colors"
+          >
+            <ShoppingCart className="w-5 h-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center justify-center">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </Link>
           <Button variant="success" size="default" asChild>
             <Link to="/shop">
               <ShoppingBag className="w-4 h-4" />
@@ -108,12 +136,38 @@ export const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          <Button variant="success" className="mt-2" asChild>
-            <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)}>
-              <ShoppingBag className="w-4 h-4" />
-              Order Now
+          <div className="flex items-center gap-4 mt-2">
+            <Link
+              to="/favorites"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="relative p-2 text-foreground hover:text-primary transition-colors"
+            >
+              <Heart className="w-5 h-5" />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center justify-center">
+                  {favoritesCount > 9 ? "9+" : favoritesCount}
+                </span>
+              )}
             </Link>
-          </Button>
+            <Link
+              to="/cart"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="relative p-2 text-foreground hover:text-primary transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs font-bold flex items-center justify-center">
+                  {cartCount > 9 ? "9+" : cartCount}
+                </span>
+              )}
+            </Link>
+            <Button variant="success" className="flex-1" asChild>
+              <Link to="/shop" onClick={() => setIsMobileMenuOpen(false)}>
+                <ShoppingBag className="w-4 h-4" />
+                Order Now
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </nav>

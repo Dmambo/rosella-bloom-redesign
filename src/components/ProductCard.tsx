@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from "@/contexts/CartContext";
+import { useFavorites } from "@/contexts/FavoritesContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface ProductCardProps {
   id: string;
@@ -15,9 +18,39 @@ interface ProductCardProps {
 export const ProductCard = ({ id, name, price, image, category, sizes = ["250ml", "500ml", "1L"] }: ProductCardProps) => {
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
   const [isHovered, setIsHovered] = useState(false);
+  const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const { toast } = useToast();
 
   const priceMultiplier = selectedSize === "500ml" ? 1.8 : selectedSize === "1L" ? 3.2 : 1;
   const displayPrice = Math.round(price * priceMultiplier);
+  const favorite = isFavorite(id);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id,
+      name,
+      price: displayPrice,
+      image,
+      category,
+      size: selectedSize,
+    });
+    toast({
+      title: "Added to Cart",
+      description: `${name} (${selectedSize}) has been added to your cart.`,
+    });
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite({ id, name, price: displayPrice, image, category });
+    toast({
+      title: favorite ? "Removed from Favorites" : "Added to Favorites",
+      description: favorite
+        ? `${name} has been removed from your favorites.`
+        : `${name} has been added to your favorites.`,
+    });
+  };
 
   return (
     <div
@@ -46,6 +79,19 @@ export const ProductCard = ({ id, name, price, image, category, sizes = ["250ml"
         <span className="absolute top-4 left-4 bg-card/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-full text-xs font-body font-medium">
           {category}
         </span>
+        {/* Favorite Button */}
+        <button
+          onClick={handleToggleFavorite}
+          className={cn(
+            "absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm",
+            favorite
+              ? "bg-primary text-primary-foreground"
+              : "bg-card/90 text-foreground hover:bg-primary/20"
+          )}
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+        >
+          <Heart className={cn("w-5 h-5", favorite && "fill-current")} />
+        </button>
       </div>
 
       {/* Content */}
@@ -80,6 +126,7 @@ export const ProductCard = ({ id, name, price, image, category, sizes = ["250ml"
           <Button
             variant="success"
             size="sm"
+            onClick={handleAddToCart}
             className={cn(
               "transition-all duration-300",
               isHovered ? "animate-shake" : ""
