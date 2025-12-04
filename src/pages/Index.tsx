@@ -1,12 +1,46 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from "react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { FeaturedProducts } from "@/components/sections/FeaturedProducts";
+import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
+import { AboutPreview } from "@/components/sections/AboutPreview";
+import { Testimonials } from "@/components/sections/Testimonials";
+import { WholesaleBanner } from "@/components/sections/WholesaleBanner";
 
 const Index = () => {
+  useEffect(() => {
+    // Scroll animation observer
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
+    document.querySelectorAll(".scroll-animate").forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <FeaturedProducts />
+        <WhyChooseUs />
+        <AboutPreview />
+        <Testimonials />
+        <WholesaleBanner />
+      </main>
+      <Footer />
     </div>
   );
 };
